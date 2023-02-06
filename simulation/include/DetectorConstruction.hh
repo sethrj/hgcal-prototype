@@ -35,6 +35,9 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 
   G4LogicalVolume* GetScoringVolume() const { return fScoringVolume; }
 
+  // Get field strength in tesla
+  static double GetFieldStrength() { return fFieldStrength; }
+
  protected:
   G4LogicalVolume* fScoringVolume;
 
@@ -51,6 +54,8 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 
   G4MagneticField* magField;
   HGCalTBMaterials* materials;
+
+  static double fFieldStrength;
 
   void ConstructHGCal();
 };

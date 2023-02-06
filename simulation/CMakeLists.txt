@@ -6,6 +6,8 @@ if(${CMAKE_VERSION} VERSION_LESS 3.12)
 endif()
 project(SIM)
 
+find_package(Celeritas 0.3 REQUIRED)
+
 #----------------------------------------------------------------------------
 # Find Geant4 package, activating all available UI and Vis drivers by default
 # You can set WITH_GEANT4_UIVIS to OFF via the command line or ccmake/cmake-gui
@@ -38,6 +40,9 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh ${PROJECT_SOURCE_DIR}/../co
 #
 add_executable(Simulation Simulation.cc ${sources} ${headers})
 target_link_libraries(Simulation ${Geant4_LIBRARIES})
+
+include(CeleritasLibrary)
+celeritas_target_link_libraries(Simulation Celeritas::accel)
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we

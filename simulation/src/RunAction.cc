@@ -13,6 +13,9 @@
 #include "G4SystemOfUnits.hh"
 #include "G4UnitsTable.hh"
 
+#include "Celeritas.hh"
+#include <accel/ExceptionConverter.hh>
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 RunAction::RunAction(EventAction* eventAction)
@@ -86,15 +89,60 @@ void RunAction::BeginOfRunAction(const G4Run*)
 
   // Open the output file
   analysisManager->OpenFile();
+
+  // Set up celeritas
+  //
+
+  celeritas::ExceptionConverter HandleExceptions{"celer0001"};
+
+  if (G4Threading::IsMasterThread()) {
+    CELER_TRY_HANDLE(CelerSharedParams().Initialize(CelerSetupOptions()), HandleExceptions);
+  }
+  else {
+    CELER_TRY_HANDLE(
+      celeritas::SharedParams::InitializeWorker(CelerSetupOptions()), HandleExceptions);
+  }
+
+  if (G4Threading::IsWorkerThread() || ! G4Threading::IsMultithreadedApplication()) {
+    CELER_TRY_HANDLE(CelerLocalTransporter().Initialize(CelerSetupOptions(), CelerSharedParams()),
+      HandleExceptions);
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void RunAction::EndOfRunAction(const G4Run*)
 {
+  celeritas::ExceptionConverter HandleExceptions{"celer0005"};
+
+  if (CelerLocalTransporter()) {
+    CELER_TRY_HANDLE(CelerLocalTransporter().Finalize(), HandleExceptions);
+  }
+
+  if (G4Threading::IsMasterThread()) {
+    CELER_TRY_HANDLE(CelerSharedParams().Finalize(), HandleExceptions);
+  }
+
   auto analysisManager = G4AnalysisManager::Instance();
   analysisManager->Write();
   analysisManager->CloseFile();
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void MasterRunAction::BeginOfRunAction(const G4Run*)
+{
+  celeritas::ExceptionConverter HandleExceptions{"celer0001"};
+
+  CELER_TRY_HANDLE(CelerSharedParams().Initialize(CelerSetupOptions()), HandleExceptions);
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void MasterRunAction::EndOfRunAction(const G4Run*)
+{
+  celeritas::ExceptionConverter HandleExceptions{"celer0005"};
+  CELER_TRY_HANDLE(CelerSharedParams().Finalize(), HandleExceptions);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

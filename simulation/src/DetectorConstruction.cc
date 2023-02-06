@@ -10,6 +10,8 @@
 #include "configs17To21_June2018.hh"
 #include "test_configs.hh"
 
+double DetectorConstruction::fFieldStrength = 0;
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DetectorConstruction::DetectorConstruction()
@@ -148,6 +150,8 @@ void DetectorConstruction::SetStepSizeSilicon(G4double val)
 void DetectorConstruction::SetMagneticFieldStrength(G4double val)
 {
   magField = new G4UniformMagField(G4ThreeVector(0.0, val * tesla, 0.0));
+  fFieldStrength = val;
+
 
   G4FieldManager* localFieldMgr =
     G4TransportationManager::GetTransportationManager()->GetFieldManager();
