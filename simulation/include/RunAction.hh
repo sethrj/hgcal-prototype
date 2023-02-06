@@ -1,12 +1,13 @@
 #ifndef RunAction_h
 #define RunAction_h 1
 
-#include "G4UserRunAction.hh"
-#include "EventAction.hh"
 #include "G4Accumulable.hh"
-#include "globals.hh"
 #include "G4AnalysisManager.hh"
 #include "G4GenericMessenger.hh"
+#include "G4UserRunAction.hh"
+#include "globals.hh"
+
+#include "EventAction.hh"
 
 class G4Run;
 
@@ -18,22 +19,20 @@ class G4Run;
 
 class EventAction;
 
-
 class RunAction : public G4UserRunAction
 {
-  public:
-    RunAction(EventAction*);
-    virtual ~RunAction();
+ public:
+  RunAction(EventAction*);
+  virtual ~RunAction();
 
-    // virtual G4Run* GenerateRun();
-    virtual void BeginOfRunAction(const G4Run*);
-    virtual void EndOfRunAction(const G4Run*);
+  // virtual G4Run* GenerateRun();
+  virtual void BeginOfRunAction(const G4Run*);
+  virtual void EndOfRunAction(const G4Run*);
 
-  private:
-    EventAction* fEventAction;
-  	G4String fOutputFileDir;
-  	G4GenericMessenger* fMessenger;
+ private:
+  EventAction* fEventAction;
+  G4String fOutputFileDir;
+  G4GenericMessenger* fMessenger;
 };
 
 #endif
-
