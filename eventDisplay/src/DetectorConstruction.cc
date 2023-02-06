@@ -719,7 +719,7 @@ void DetectorConstruction::DefineCommands()
                                 &DetectorConstruction::ReadNtupleEvent,
                                 "Select event for visualisation");
   eventCmd.SetParameterName("showEvent", true);
-  eventCmd.SetDefaultValue(1);
+  eventCmd.SetDefaultValue("1");
 
   auto& ntuplePathCmd
     = fMessenger->DeclareMethod("path",

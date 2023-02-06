@@ -5,14 +5,14 @@
 #include "EventAction.hh"
 #include "G4Accumulable.hh"
 #include "globals.hh"
-#include "g4root.hh"
+#include "G4AnalysisManager.hh"
 #include "G4GenericMessenger.hh"
 
 class G4Run;
 
 /// Run action class
 ///
-/// In EndOfRunAction(), it calculates the dose in the selected volume 
+/// In EndOfRunAction(), it calculates the dose in the selected volume
 /// from the energy deposit accumulated via stepping and event actions.
 /// The computed dose is then printed on the screen.
 
