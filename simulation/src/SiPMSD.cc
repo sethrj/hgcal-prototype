@@ -18,13 +18,13 @@ void SiPMSD::Initialize(G4HCofThisEvent* HCE)
 
   tmp_hits.clear();
 };
-void SiPMSD::EndOfEvent(G4HCofThisEvent* HCE)
+void SiPMSD::EndOfEvent(G4HCofThisEvent*)
 {
   for (std::map<int, SiPMHit*>::iterator it = tmp_hits.begin(); it != tmp_hits.end(); it++)
     hitCollection->insert(it->second);
 };
 
-G4bool SiPMSD::ProcessHits(G4Step* step, G4TouchableHistory* ROhist)
+G4bool SiPMSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 {
   G4TouchableHandle touchable = step->GetPreStepPoint()->GetTouchableHandle();
 

@@ -18,13 +18,13 @@ void SiliconPixelSD::Initialize(G4HCofThisEvent* HCE)
 
   tmp_hits.clear();
 };
-void SiliconPixelSD::EndOfEvent(G4HCofThisEvent* HCE)
+void SiliconPixelSD::EndOfEvent(G4HCofThisEvent*)
 {
   for (std::map<int, SiliconPixelHit*>::iterator it = tmp_hits.begin(); it != tmp_hits.end(); it++)
     hitCollection->insert(it->second);
 };
 
-G4bool SiliconPixelSD::ProcessHits(G4Step* step, G4TouchableHistory* ROhist)
+G4bool SiliconPixelSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 {
   G4TouchableHandle touchable = step->GetPreStepPoint()->GetTouchableHandle();
 
