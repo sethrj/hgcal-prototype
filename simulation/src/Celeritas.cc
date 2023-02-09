@@ -5,7 +5,9 @@
 #include <accel/AlongStepFactory.hh>
 #include <celeritas/em/UrbanMscParams.hh>
 #include <celeritas/field/UniformFieldData.hh>
+#include <celeritas/global/alongstep/AlongStepGeneralLinearAction.hh>
 #include <celeritas/global/alongstep/AlongStepUniformMscAction.hh>
+#include <celeritas/io/ImportData.hh>
 
 #include <memory>
 
@@ -18,13 +20,23 @@ namespace
 std::shared_ptr<ExplicitActionInterface const> make_uniform_along_step(
   AlongStepFactoryInput const& input)
 {
-  UniformFieldParams field_params;
-  field_params.field = {
-    0, DetectorConstruction::GetFieldStrength() * units::tesla, 0};
-  CELER_LOG(debug)
-      << "Created along-step with field strength " << field_params.field[1] / units::tesla << "T";
-  return std::make_shared<AlongStepUniformMscAction>(input.action_id, field_params,
-    UrbanMscParams::from_import(*input.particle, *input.material, *input.imported));
+  auto field = DetectorConstruction::GetFieldStrength() * units::tesla;
+
+  if (field == 0) {
+    CELER_LOG(debug) << "Creating along-step action with linear propagation";
+    return celeritas::AlongStepGeneralLinearAction::from_params(input.action_id, *input.material,
+      *input.particle,
+      celeritas::UrbanMscParams::from_import(*input.particle, *input.material, *input.imported),
+      input.imported->em_params.energy_loss_fluct);
+  }
+  else {
+    UniformFieldParams field_params;
+    field_params.field = {0, field, 0};
+    CELER_LOG(debug) << "Creating along-step action with field strength " << field / units::tesla
+                     << "T";
+    return std::make_shared<AlongStepUniformMscAction>(input.action_id, field_params,
+      UrbanMscParams::from_import(*input.particle, *input.material, *input.imported));
+  }
 }
 
 }  // namespace
@@ -33,8 +45,10 @@ std::shared_ptr<ExplicitActionInterface const> make_uniform_along_step(
 // Global shared setup options
 SetupOptions& CelerSetupOptions()
 {
-  static SetupOptions so;
-  if (! so.make_along_step) {
+  static SetupOptions options = [] {
+    // Construct setup options the first time CelerSetupOptions is invoked
+    SetupOptions so;
+
     // Set along-step factory
     so.make_along_step = make_uniform_along_step;
 
@@ -57,9 +71,9 @@ SetupOptions& CelerSetupOptions()
 
     // Post-step time is used
     so.sd.post.global_time = true;
-
-  }
-  return so;
+    return so;
+  }();
+  return options;
 }
 
 // Shared data and GPU setup
