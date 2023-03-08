@@ -1,10 +1,18 @@
 # Standalone Simulation
 ![sim_config22_150GeV_pion](../img/sim_config22_150GeV_pion.png)
 
+## MULTITHREADING WARNING
+
+- The `/run/numberOfThreads` macro command is ignored (at least when using
+Geant4@11). Use `G4FORCENUMBEROFTHREADS=1` instead.
+- With the serial run manager, output is not written correctly: energy
+  deposition is missing
+- Celeritas v0.2.1 gives incorrect results when multithreading
+
 ## Installation
 * ```cd simulation```
 * ```mkdir build; cd build```
-* ```cmake ..``` 
+* ```cmake ..```
 * ```make install```, warnings can be ignored.
 
 In case of successful compilation, an executable called ```Simulation``` should be added to the ```build``` directory.

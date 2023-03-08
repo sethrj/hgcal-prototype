@@ -3,7 +3,10 @@
 #include "ActionInitialization.hh"
 #include "DetectorConstruction.hh"
 
-#ifdef G4MULTITHREADED
+#include <G4Version.hh>
+#if G4VERSION_NUMBER >= 1100
+#    include <G4RunManagerFactory.hh>
+#elif defined(G4MULTITHREADED)
 #  include "G4MTRunManager.hh"
 #else
 #  include "G4RunManager.hh"
@@ -15,6 +18,9 @@
 #include "Randomize.hh"
 
 #include "FTFP_BERT.hh"
+
+#include <corecel/io/Logger.hh>
+#include <accel/Logger.hh>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -32,11 +38,19 @@ int main(int argc, char** argv)
 
   // Construct the default run manager
   //
-#ifdef G4MULTITHREADED
+#if G4VERSION_NUMBER >= 1100
+#  ifdef G4MULTITHREADED
+  constexpr auto defaultManagerTypeEnum = G4RunManagerType::MT;
+#  else
+  constexpr auto defaultManagerTypeEnum = G4RunManagerType::Serial;
+#  endif
+  G4RunManager* runManager = G4RunManagerFactory::CreateRunManager(defaultManagerTypeEnum);
+#elif defined(G4MULTITHREADED)
   G4MTRunManager* runManager = new G4MTRunManager;
 #else
   G4RunManager* runManager = new G4RunManager;
 #endif
+  celeritas::self_logger() = celeritas::make_mt_logger(*runManager);
 
   // Set mandatory initialization classes
   //
