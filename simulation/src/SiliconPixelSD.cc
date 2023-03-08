@@ -26,6 +26,10 @@ void SiliconPixelSD::EndOfEvent(G4HCofThisEvent*)
 
 G4bool SiliconPixelSD::ProcessHits(G4Step* step, G4TouchableHistory*)
 {
+  G4double edep = step->GetTotalEnergyDeposit() / CLHEP::keV;  // in keV
+  if (edep <= 0)
+      return false;
+
   G4TouchableHandle touchable = step->GetPreStepPoint()->GetTouchableHandle();
 
   G4int copy_no_cell = touchable->GetVolume(0)->GetCopyNo();
@@ -44,7 +48,6 @@ G4bool SiliconPixelSD::ProcessHits(G4Step* step, G4TouchableHistory*)
     tmp_hits[tmp_ID]->SetPosition(hit_x, hit_y, hit_z);  // in cm
   }
 
-  G4double edep = step->GetTotalEnergyDeposit() / CLHEP::keV;  // in keV
   G4double edep_nonIonizing = step->GetNonIonizingEnergyDeposit() / CLHEP::keV;
 
   G4double timedep = step->GetPostStepPoint()->GetGlobalTime() / CLHEP::ns;
