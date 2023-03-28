@@ -7,9 +7,7 @@
 #include "SteppingAction.hh"
 #include "TrackingAction.hh"
 
-#include <corecel/io/Logger.hh>
-#include <corecel/sys/Environment.hh>
-
+#include "Celeritas.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -21,7 +19,10 @@ ActionInitialization::~ActionInitialization() {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void ActionInitialization::BuildForMaster() const { SetUserAction(new MasterRunAction); }
+void ActionInitialization::BuildForMaster() const {
+  SetUserAction(new MasterRunAction);
+  CelerSimpleOffload().BuildForMaster(&CelerSetupOptions(), &CelerSharedParams());
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -37,11 +38,8 @@ void ActionInitialization::Build() const
 
   SetUserAction(new SteppingAction(eventAction));
 
-  if (! celeritas::getenv("CELER_DISABLE").empty()) {
-    CELER_LOG(info) << "Disabling Celeritas offloading since the 'CELER_DISABLE' "
-                       "environment variable is present and non-empty";
-  }
-  else {
+  CelerSimpleOffload().Build(&CelerSetupOptions(), &CelerSharedParams(), &CelerLocalTransporter());
+  if (CelerSimpleOffload()) {
     SetUserAction(new TrackingAction());
   }
 }

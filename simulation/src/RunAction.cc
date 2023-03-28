@@ -14,7 +14,6 @@
 #include "G4UnitsTable.hh"
 
 #include "Celeritas.hh"
-#include <accel/ExceptionConverter.hh>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -37,7 +36,7 @@ RunAction::~RunAction() { delete G4AnalysisManager::Instance(); }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void RunAction::BeginOfRunAction(const G4Run*)
+void RunAction::BeginOfRunAction(const G4Run* run)
 {
   // Create analysis manager
   // The choice of analysis technology is done via selectin of a namespacels
@@ -91,37 +90,14 @@ void RunAction::BeginOfRunAction(const G4Run*)
   analysisManager->OpenFile();
 
   // Set up celeritas
-  //
-
-  celeritas::ExceptionConverter HandleExceptions{"celer0001"};
-
-  if (G4Threading::IsMasterThread()) {
-    CELER_TRY_HANDLE(CelerSharedParams().Initialize(CelerSetupOptions()), HandleExceptions);
-  }
-  else {
-    CELER_TRY_HANDLE(
-      celeritas::SharedParams::InitializeWorker(CelerSetupOptions()), HandleExceptions);
-  }
-
-  if (G4Threading::IsWorkerThread() || ! G4Threading::IsMultithreadedApplication()) {
-    CELER_TRY_HANDLE(CelerLocalTransporter().Initialize(CelerSetupOptions(), CelerSharedParams()),
-      HandleExceptions);
-  }
+  CelerSimpleOffload().BeginOfRunAction(run);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void RunAction::EndOfRunAction(const G4Run*)
+void RunAction::EndOfRunAction(const G4Run* run)
 {
-  celeritas::ExceptionConverter HandleExceptions{"celer0005"};
-
-  if (CelerLocalTransporter()) {
-    CELER_TRY_HANDLE(CelerLocalTransporter().Finalize(), HandleExceptions);
-  }
-
-  if (G4Threading::IsMasterThread()) {
-    CELER_TRY_HANDLE(CelerSharedParams().Finalize(), HandleExceptions);
-  }
+  CelerSimpleOffload().EndOfRunAction(run);
 
   auto analysisManager = G4AnalysisManager::Instance();
   analysisManager->Write();
@@ -130,19 +106,18 @@ void RunAction::EndOfRunAction(const G4Run*)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void MasterRunAction::BeginOfRunAction(const G4Run*)
+void MasterRunAction::BeginOfRunAction(const G4Run* run)
 {
-  celeritas::ExceptionConverter HandleExceptions{"celer0001"};
-
-  CELER_TRY_HANDLE(CelerSharedParams().Initialize(CelerSetupOptions()), HandleExceptions);
+  // Set up celeritas
+  CelerSimpleOffload().BeginOfRunAction(run);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void MasterRunAction::EndOfRunAction(const G4Run*)
+void MasterRunAction::EndOfRunAction(const G4Run* run)
 {
-  celeritas::ExceptionConverter HandleExceptions{"celer0005"};
-  CELER_TRY_HANDLE(CelerSharedParams().Finalize(), HandleExceptions);
+  // Set up celeritas
+  CelerSimpleOffload().EndOfRunAction(run);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

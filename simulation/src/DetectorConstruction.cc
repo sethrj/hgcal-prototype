@@ -12,6 +12,11 @@
 
 double DetectorConstruction::fFieldStrength = 0;
 
+G4ThreeVector DetectorConstruction::GetMagneticField()
+{
+    return G4ThreeVector(0, fFieldStrength, 0);
+}
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DetectorConstruction::DetectorConstruction()
@@ -150,8 +155,7 @@ void DetectorConstruction::SetStepSizeSilicon(G4double val)
 void DetectorConstruction::SetMagneticFieldStrength(G4double val)
 {
   magField = new G4UniformMagField(G4ThreeVector(0.0, val * tesla, 0.0));
-  fFieldStrength = val;
-
+  fFieldStrength = val * tesla;
 
   G4FieldManager* localFieldMgr =
     G4TransportationManager::GetTransportationManager()->GetFieldManager();

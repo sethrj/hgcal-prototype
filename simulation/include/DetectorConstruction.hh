@@ -35,8 +35,8 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 
   G4LogicalVolume* GetScoringVolume() const { return fScoringVolume; }
 
-  // Get field strength in tesla
-  static double GetFieldStrength() { return fFieldStrength; }
+  /// Get field vector in native units
+  static G4ThreeVector GetMagneticField();
 
  protected:
   G4LogicalVolume* fScoringVolume;

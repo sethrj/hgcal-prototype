@@ -19,9 +19,6 @@
 
 #include "FTFP_BERT.hh"
 
-#include <corecel/io/Logger.hh>
-#include <accel/Logger.hh>
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 int main(int argc, char** argv)
@@ -50,7 +47,6 @@ int main(int argc, char** argv)
 #else
   G4RunManager* runManager = new G4RunManager;
 #endif
-  celeritas::self_logger() = celeritas::make_mt_logger(*runManager);
 
   // Set mandatory initialization classes
   //

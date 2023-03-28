@@ -9,7 +9,6 @@
 #include "RunAction.hh"
 #include "SiPMHit.hh"
 #include "SiliconPixelHit.hh"
-#include <accel/ExceptionConverter.hh>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -43,17 +42,14 @@ void EventAction::BeginOfEventAction(const G4Event* event)
   firstHadInteractionDepth = -999 * CLHEP::m;
   firstHadInteractionTime = 1000 * CLHEP::s;
 
-  // Set event ID in local transporter
-  celeritas::ExceptionConverter call_g4exception{"celer0002"};
-  CELER_TRY_HANDLE(CelerLocalTransporter().SetEventId(event->GetEventID()), call_g4exception);
+  CelerSimpleOffload().BeginOfEventAction(event);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void EventAction::EndOfEventAction(const G4Event* event)
 {
-  celeritas::ExceptionConverter call_g4exception{"celer0004"};
-  CELER_TRY_HANDLE(CelerLocalTransporter().Flush(), call_g4exception);
+  CelerSimpleOffload().EndOfEventAction(event);
 
   auto analysisManager = G4AnalysisManager::Instance();
   std::cout << "Simulated event " << event->GetEventID() << std::endl;

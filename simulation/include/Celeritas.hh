@@ -1,9 +1,7 @@
 #ifndef Celeritas_h
 #define Celeritas_h 1
 
-#include <accel/LocalTransporter.hh>
-#include <accel/SetupOptions.hh>
-#include <accel/SharedParams.hh>
+#include <accel/SimpleOffload.hh>
 
 // Global shared setup options
 celeritas::SetupOptions& CelerSetupOptions();
@@ -11,5 +9,7 @@ celeritas::SetupOptions& CelerSetupOptions();
 celeritas::SharedParams& CelerSharedParams();
 // Thread-local transporter
 celeritas::LocalTransporter& CelerLocalTransporter();
+// Thread-local offload
+celeritas::SimpleOffload& CelerSimpleOffload();
 
 #endif
